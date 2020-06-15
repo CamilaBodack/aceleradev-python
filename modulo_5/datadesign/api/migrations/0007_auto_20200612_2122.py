@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='level',
-            field=models.CharField(max_length=20, validators=[api.models.level_validation], verbose_name='Level'),
+            field=models.CharField(max_length=20, verbose_name='Level'),
         ),
         migrations.AlterField(
             model_name='group',
