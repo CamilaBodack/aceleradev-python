@@ -40,7 +40,7 @@ Sugestão, crie um projeto base com Django para testar as validações e o funci
     django-admin startproject ormchallenge
     cd ormchallenge
     django-admin startapp api
-    django-admin createsuperuser
+    python manage.py createsuperuser
     python manage.py migrate
     python manage.py runserver
     
