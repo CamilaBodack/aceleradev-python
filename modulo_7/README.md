@@ -40,8 +40,9 @@ Sugestão, crie um projeto base com Django para testar as validações e o funci
     django-admin startproject ormchallenge
     cd ormchallenge
     django-admin startapp api
-    python manage.py createsuperuser
+    python manage.py makemigrations
     python manage.py migrate
+    python manage.py createsuperuser
     python manage.py runserver
     
 Agora acesse http://127.0.0.1:8000/admin use o usuário criado no processo para acessar a página de administração do Django.
