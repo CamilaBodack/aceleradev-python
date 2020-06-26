@@ -33,4 +33,14 @@ Os wireframes servem para ilustrar as funcionalidades básicas que a aplicação
 **São fornecidos modelos de wireframes no documento de referência.**
 
 
+## Requirements
+
+- Criação e ativação de virtualenv seguida da instalação dos pacotes inseridos no requirements:
+
+```pip install -r requirements.txt
+```
+
+## Execução do projeto
+Na pasta contendo o arquivo manage do projeto executar:
+    ```python manage.py runserver```
 
