@@ -41,12 +41,6 @@ Os wireframes servem para ilustrar as funcionalidades básicas que a aplicação
 ```
 
 ## Execução do projeto
-
-    django-admin startproject api_central_errors
-    cd api_central_errors
-    django-admin startapp api_central_errors
-    python manage.py makemigrations
-    python manage.py migrate
-    python manage.py createsuperuser
-    python manage.py runserver
+Na pasta contendo o arquivo manage do projeto executar:
+    ```python manage.py runserver```
 
