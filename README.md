@@ -1,5 +1,5 @@
 # Aceleradev
 
-Project to manage Aceleradev Python challenges.
+Project to manage Aceleradev Python Bootcamp challenges.
 
 
