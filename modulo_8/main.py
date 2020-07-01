@@ -49,19 +49,23 @@ types:
       name:
         type: string
         required: true
+        example: "camila"
       status:
         type: boolean
         required: true
+        example: true
       enviroment:
         type: string
         required: true
+        example: "enviroment name"
       version:
         type: string
         required: true
+        example: 1
       address:
         type: string
         required: true
-    example: camila, true, cloud, v1, centro
+        example: "machine adress"
   Event:
     type: object
     discriminator: level
@@ -70,13 +74,15 @@ types:
       payload:
         type: string
         required: true
+        example: "payload"
       shelve:
         type: boolean
-        required: false
+        required: true
+        example: true
       data:
         type: datetime
         required: true
-    example: critical, data, true, 01:07:2020
+        example: "01-07-2020"
   Group:
     type: object
     discriminator: group
@@ -85,7 +91,7 @@ types:
       name:
         type: string
         required: true
-    example: Apis para telefonia
+        example: "Apis para telefonia"
   User:
     type: object
     discriminator: user
@@ -94,23 +100,39 @@ types:
       name:
         type: string
         required: true
+        example: "camilanb"
       email:
         type: string
         pattern: ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$
         required: true
+        example: "user@user.com"
       password:
         type: string
         required: true
+        example: "123456"
       last_login:
         type: datetime
         required: false
-    example: camila, user@user.com, senha, 30:06:2020 
+        example: "30-06-2020"
 
 
 /auth/token:
-  post: 
+  post:
+    description: create token 
     body:
-      type: string
+      type: Auth
+      username: string
+      password: string
+      responses:
+        200:
+          body:
+            type: Operação realizada com sucesso
+        401:
+          body:
+            type: Erro na operação
+        500:
+          body:
+            type: Erro no servidor
 
 
 /agents: 
@@ -118,23 +140,39 @@ types:
     description:  create an agent
     securedBy: [JWT]   
     body:
-      type: object  
+      type: Agent
+      responses:
+        200:
+          body:
+            type: Operação realizada com sucesso
+        401:
+          body:
+            type: Erro na operação
+        500:
+          body:
+            type: Erro no servidor 
+
   get:
-    description: get agents data 
-    queryParameters:  
-      name:
-        type: string
-      status:
-        type: boolean
-      enviroment:
-        type: string
-      version:
-        type: string
-      address:
-        type: string
+    description: get agents data
+    securedBy: [JWT]   
+    body:  
+      type: Agent
+    responses:
+      200:
+        body:
+          type: Operação realizada com sucesso
+      401:
+        body:
+          type: Erro na operação
+      500:
+        body:
+          type: Erro no servidor 
   /{id}:
     delete:
       description: delete agent data
+      securedBy: [JWT]  
+      body:
+        type: Agent
       responses:
         200:
           body:
@@ -169,11 +207,36 @@ types:
       description: create event
       body:
         type: Event
+      responses:
+        200:
+          body:
+            type: Operação realizada com sucesso
+        401:
+          body:
+            type: Erro na operação
+        500:
+          body:
+            type: Erro no servidor 
     get: 
       description: get events data
-      queryParameters:  
+      securedBy: [JWT]  
+      body:
+        type: Event
+      responses:
+        200:
+          body:
+            type: Operação realizada com sucesso
+        401:
+          body:
+            type: Erro na operação
+        500:
+          body:
+            type: Erro no servidor 
     delete: 
       description: delete event data
+      securedBy: [JWT]
+      body:
+        type: Event
       responses:
         200:
           body:
@@ -198,23 +261,49 @@ types:
             type: Erro na operação
         500:
           body:
-            type: Erro no servidor
+            type: Erro no servido
 
   /{id}/events/{id}:
-
      post:
       description: create event
       securedBy: [JWT]  
       body:
-        type: object
+        type: Event
+      responses:
+       200:
+         body:
+           type: Operação realizada com sucesso
+       401:
+         body:
+           type: Erro na operação
+       500:
+         body:
+           type: Erro no servidor
+
      get:
       description: get event by id
-      queryParameters:
+      securedBy: [JWT]  
+      body:
+        type: Event
+      responses:
+         200:
+           body:
+             type: Operação realizada com sucesso
+         401:
+           body:
+             type: Erro na operação
+         500:
+           body:
+             type: Erro no servidor
 
      delete: 
       description: delete event
+      securedBy: [JWT]  
+      body:
+        type: Event
       responses:
-        body:
+        200:
+          body:
             type: Operação realizada com sucesso
         401:
           body:
@@ -244,14 +333,35 @@ types:
     securedBy: [JWT]  
     body:
       type: Group
+    responses:
+      200:
+        body:
+          type: Operação realizada com sucesso
+      401:
+        body:
+          type: Erro na operação
+      500:
+        body:
+          type: Erro no servidor
   get: 
     description: get groups data
-    queryParameters:
-      name:
-        type: string
+    securedBy: [JWT]  
+    body:
+      type: Group
+    responses:
+    200:
+      body:
+        type: Operação realizada com sucesso
+    401:
+      body:
+        type: Erro na operação
+    500:
+      body:
+        type: Erro no servidor
   /{id}:
     delete: 
       description: delete group by id
+      securedBy: [JWT]
       responses:
         200:
           body:
@@ -285,12 +395,36 @@ types:
     securedBy: [JWT]  
     body:
       type: User
+    responses:
+      200:
+        body:
+          type: Operação realizada com sucesso
+      401:
+        body:
+          type: Erro na operação
+      500:
+        body:
+          type: Erro no servidor
   get: 
     description: get users data
-    queryParameters:
+    securedBy: [JWT]  
+    body:
+      type: User
+    responses:
+      200:
+        body:
+          type: Operação realizada com sucesso
+      401:
+        body:
+          type: Erro na operação
+      500:
+        body:
+          type: Erro no servidor
   /{id}:
     delete: 
       description: delete user by id
+      body:
+        type: User
       responses:
       200:
         body:
