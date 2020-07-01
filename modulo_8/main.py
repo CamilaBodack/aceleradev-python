@@ -4,84 +4,115 @@ baseUri: http://modulo8.com/{version}
 version: v1
 mediaType: aplication/json
 
+
+securitySchemes:
+  JWT:
+    type: object
+    discriminator: jwt
+    properties:
+      jwt: string
+
+
 types:
-    Auth:
-      type: object
-      discriminator: token
-      properties:
-        token: string
-    Agent:
-        type: object
-      name:
-        type: string
-      status:
-        type: boolean
-      enviroment:
-        type: string
-      version:
-        type: string
-      address:
-        type: string
-    Event:
-        type: object
-      level:
-        type: string
-      payload:
-        type: string
-      email:
-        type: string
-        pattern: ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$
-      shelve:
-        type: boolean
-      date:
-        type: date
-    Group:
-        type: object
-      name:
-        type: string
-    User:
-        type: object
-      password:
-        type: string
-      name:
-        type: string
-      last_login:
-        type: date
+  Auth:
+    type: object
+    discriminator: token
+    properties:
+      token: string
+  Agent:
+    type: object
+    name:
+      type: string
+    status:
+      type: boolean
+    enviroment:
+      type: string
+    version:
+      type: string
+    address:
+      type: string
+  Event:
+    type: object
+    level:
+      type: string
+    payload:
+      type: string
+    email:
+      type: string
+      pattern: ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$
+    shelve:
+      type: boolean
+    data:
+      type: datetime
+  Group:
+    type: object
+    name:
+      type: string
+  User:
+    type: object
+    password:
+      type: string
+    last_login:
+      type: datetime
 
 
 /auth/token:
-  post: #Solicita um token para API
+  post: 
+    body:
+      type: string
 
-/agents: #Recursos de agentes
-  post: #Cria um agente
-  get: #Lista todos agentes
+
+/agents: 
+  is: [secured]
+  post: 
+    body:
+      type: object
+  get: 
+    queryParameters:
+      name:
   /{id}:
-    delete: #Remove o agente pelo id
-    put: #Atualiza os dados do usuario pelo id
+    delete:
+    put:
+      body:
   /{id}/events:
-    post: #Cria um evento
-    get: #Lista o evento
-    delete: #Remove o evento pelo id
-    put: #Atualiza o evento pelo id
+    post: 
+      body:
+        type: object
+    get: 
+      queryParameters:
+    delete: 
+    put:
+      body:
   /{id}/events/{id}:
-     post: #Cria um evento
-     get: #Lista o evento
-     delete: #Remove o evento pelo id
-     put: #Atualiza o evento pelo id
+     post: 
+      body:
+        type: object
+     get: 
+      queryParameters:
+     delete: 
+     put:
+      body:
 
-/groups: #Recursos de grupos
-  post: #Cria um grupo
-  get: #Lista todos grupos
+/groups: 
+  post:
+    body:
+      type:
+  get: 
+    queryParameters:
   /{id}:
-    delete: #Remove um grupo pelo id
-    put: #Atualiza o grupo pelo id
+    delete: 
+    put:
+      body:
 
-/users: #Recursos de usuarios
-  post: #Cria um usuario
-  get: #Lista todos usuarios
+/users: 
+  post:
+    body:
+      type:
+  get: 
+    queryParameters:
   /{id}:
-    delete: #Remove o usuario pelo id
-    put: #Atualiza os dados do usuario pelo id
-
-
+    delete: 
+    put:
+      body:
+    
 """
