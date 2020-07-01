@@ -1,4 +1,3 @@
-
 doc = """
 title: API Modulo 8
 baseUri: http://modulo8.com/{version}
@@ -6,13 +5,49 @@ version: v1
 mediaType: aplication/json
 
 types:
-  Auth:
-    type: object
-    discriminator: token
-    properties:
-      token : string
-  Agent:
-    type: object
+    Auth:
+      type: object
+      discriminator: token
+      properties:
+        token: string
+    Agent:
+        type: object
+      name:
+        type: string
+      status:
+        type: boolean
+      enviroment:
+        type: string
+      version:
+        type: string
+      address:
+        type: string
+    Event:
+        type: object
+      level:
+        type: string
+      payload:
+        type: string
+      email:
+        type: string
+        pattern: ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$
+      shelve:
+        type: boolean
+      date:
+        type: date
+    Group:
+        type: object
+      name:
+        type: string
+    User:
+        type: object
+      password:
+        type: string
+      name:
+        type: string
+      last_login:
+        type: date
+
 
 /auth/token:
   post: #Solicita um token para API
