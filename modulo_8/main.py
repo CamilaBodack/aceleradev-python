@@ -5,35 +5,28 @@ baseUri: http://modulo8.com/{version}
 version: v1
 protocols: [HTTP, HTTPS]
 mediaType: aplication/json
-
-
+              
 securitySchemes:
   JWT:
-    description: API access is provided through JWT Token.
-    type: jwt
+    description: A valid JWT to access API needs to be provided. Expiration time - 8 hours.
+    type: x-jwt
     describedBy:
       headers:
         Authorization:
-          description: |
+          description:
               JSON Web Token (JWT) is an open standard (RFC 7519)
               that defines a compact and self-contained way for securely
               transmitting information between parties as a JSON object.
-              This information can be verified and trusted because it is
-              digitally signed. JWTs can be signed using a secret (with the HMAC algorithm)
-              or a public/private key pair using RSA or ECDSA.
           type: string
-      queryParameters:
-        access_token:
-          description: |
-             A valid JWT to access API needs to be provided.
-             Expiration time - 8 hours
-          type: string
+          required: true
       responses:
-        401:
-          description: Invalid data
-        500:
-          description: server error
-              
+        body:
+            200:
+              description: Successfully logged in      
+            401:
+              description: Invalid data format or expired token.
+    settings:
+      signatures:['SHA256']
 
 types:
   Auth:
@@ -41,414 +34,546 @@ types:
     discriminator: token
     properties:
       token: string
+
+  User:
+   type: object
+   discriminator: user_id
+   properties:
+      user_id: integer
+      name: string
+      email: string
+      password: string
+      last_login: datetime
+   example:
+      user_id: 1
+      name: string
+      email: example@example.com
+      password: 123456
+      last_login: 01-07-2020
+
+
   Agent:
     type: object
-    discriminator: agent
+    discriminator: agent_id
     properties:
-      agent: object
-      name:
-        type: string
-        required: true
-        example: "camila"
-      status:
-        type: boolean
-        required: true
-        example: true
-      enviroment:
-        type: string
-        required: true
-        example: "enviroment name"
-      version:
-        type: string
-        required: true
-        example: 1
-      address:
-        type: string
-        required: true
-        example: "machine adress"
-  Event:
-    type: object
-    discriminator: level
-    properties:
-      level: object
-      payload:
-        type: string
-        required: true
-        example: "payload"
-      shelve:
-        type: boolean
-        required: true
-        example: true
-      data:
-        type: datetime
-        required: true
-        example: "01-07-2020"
+      agent_id: integer
+      user_id: integer
+      name: string
+      status: boolean
+      environment: string
+      version: string
+      address: string
+    example:
+      agent_id: 33
+      used_id: 27
+      name: string
+      status: true
+      environment: enviroment
+      version: v1
+      address: ipv4 address
+
   Group:
     type: object
-    discriminator: group
+    discriminator: group_id
     properties:
-      group: object
-      name:
-        type: string
-        required: true
-        example: "Apis para telefonia"
-  User:
-    type: object
-    discriminator: user
-    properties:
-      user: object
-      name:
-        type: string
-        required: true
-        example: "camilanb"
-      email:
-        type: string
-        pattern: ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$
-        required: true
-        example: "user@user.com"
-      password:
-        type: string
-        required: true
-        example: "123456"
-      last_login:
-        type: datetime
-        required: false
-        example: "30-06-2020"
+      group_id: integer
+      name: string
+    example:
+      group_id: 1
+      name: string
+
+  Event:
+   type: object
+   discriminator: event_id
+   properties:
+      event_id: integer
+      agent_id: integer
+      level: string
+      payload: string
+      shelve: boolean
+      data: datetime
+   example:
+      event_id: 29
+      agent_id: 25
+      level: debug
+      payload: string
+      shelve: false
+      data: 02-07-2020
 
 
 /auth/token:
   post:
-    description: create token 
+    description: Request token to acess API
     body:
-      type: Auth
-      username: string
-      password: string
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
-
+      application/json:
+          username: string
+          password: string
+    responses:
+      201:
+        body:
+          application/json:
+            type: Auth
+      401:
+        body:
+          application/json:
+            {"error": "Invalid data format or user not found"}
 
 /agents: 
   post:
     description:  create an agent
-    securedBy: [JWT]   
+    securedBy: JWT
     body:
-      type: Agent
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor 
+      application/json:  
+        properties:
+        example: |
+          {"user_id": "1",
+           "name": "username",
+           "status": true,
+           "environment": "type of environment",
+           "version": "version used",
+           "address": "ipv4 address"}
+        responses:
+          201:
+            body:
+              application/json: |
+                {"message": agent created"}
+          401:
+            body:
+              application/json:
+                {"error": "Erro na operação"}
+          404:
+            body:
+              application/json: |
+                {"message": "Client error"}
 
   get:
     description: get agents data
-    securedBy: [JWT]   
-    body:  
-      type: Agent
+    securedBy: JWT
     responses:
       200:
         body:
-          type: Operação realizada com sucesso
+          application/json: Agent[]
       401:
         body:
-          type: Erro na operação
-      500:
-        body:
-          type: Erro no servidor 
+          application/json: |
+            {"message": "Erro na operação"}
+
+
   /{id}:
+    get:
+      description: get agent data by id
+      securedBy: JWT
+      responses:
+        200:
+          body:
+            application/json: Agent
+        401:
+          body:
+            application/json: |
+              {"message": "Erro na operação"}
+
     delete:
       description: delete agent data
-      securedBy: [JWT]  
+      securedBy: JWT
       body:
-        type: Agent
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
-
+        responses:
+          200:
+            body:
+              application/json: 
+                {"message": "Agent deleted"}
+          401:
+            body:
+              application/json: |
+                {"message": "Erro na operação"}
+          404:
+            body:
+              application/json: |
+                {"message": "Client error"}
     put:
       description: update agent data
-      securedBy: [JWT]  
-      body:
-        type: Agent
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
+      securedBy: JWT
+      application/json:
+        responses:
+          200:
+            body:
+              application/json: Agent
+          401:
+            body:
+              application/json: |
+                {"message": "Erro na operação"}
+          404:
+            body:
+              application/json: |
+                {"message": "Client error"}
 
 
   /{id}/events:
     post:
-      securedBy: [JWT]   
       description: create event
+      securedBy: JWT
       body:
-        type: Event
+        application/json: Event[]
       responses:
-        200:
+        201:
           body:
-            type: Operação realizada com sucesso
+            application/json: |
+              {"message": "event created"}
         401:
           body:
-            type: Erro na operação
-        500:
+            application/json: |
+              {"message": "Erro na operação"}
+        404:
           body:
-            type: Erro no servidor 
+            application/json: |
+              {"message": "Client error"}
+
     get: 
       description: get events data
-      securedBy: [JWT]  
-      body:
-        type: Event
+      securedBy: JWT
       responses:
         200:
           body:
-            type: Operação realizada com sucesso
+            application/json: Event
         401:
           body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor 
+            application/json: |
+              {"message": "Erro na operação"}
+         404:
+            body:
+              application/json: |
+                {"message": "Client error"}
+      
     delete: 
       description: delete event data
-      securedBy: [JWT]
+      securedBy: JWT
       body:
-        type: Event
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: |
+                  {"message": "Event deleted"}
+            401:
+              body:
+                application/json: |
+                  {"message": "Erro na operação"}
+
     put:
       description: update event data
-      securedBy: [JWT]  
+      securedBy: JWT
       body:
-        type: Event
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servido
+        application/json:
+          responses:
+            200:
+               body:
+                 application/json: |
+                    {"message": "data successfully updated"}
+            401:
+              body:
+                application/json: |
+                  {"message": "Operation error"}
+            404:
+             body:
+               application/json: |
+                 {"message": "Client error"}
 
   /{id}/events/{id}:
-     post:
+    post:
       description: create event
-      securedBy: [JWT]  
+      securedBy: JWT  
       body:
-        type: Event
-      responses:
-       200:
-         body:
-           type: Operação realizada com sucesso
-       401:
-         body:
-           type: Erro na operação
-       500:
-         body:
-           type: Erro no servidor
-
-     get:
+        application/json:
+          responses:
+          200:
+            body:
+              application/json: |
+                example:
+                  {"new_data": "data"}
+          401:
+            body:
+              application/json: |
+                {"message": "Erro na operação"}
+  
+    get:
       description: get event by id
-      securedBy: [JWT]  
-      body:
-        type: Event
-      responses:
-         200:
-           body:
-             type: Operação realizada com sucesso
-         401:
-           body:
-             type: Erro na operação
-         500:
-           body:
-             type: Erro no servidor
+      securedBy: JWT
+      responses: 
+        200:
+          body:
+            application/json: |
+              {"event_ids": "data"}
+        401:
+          body:
+            application/json:
+              {"message": "Erro na operação"}
 
-     delete: 
+    delete: 
       description: delete event
-      securedBy: [JWT]  
-      body:
-        type: Event
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
-     put:
+      securedBy: JWT
+      body:  
+        responses:
+          200:
+            body:
+              application/json: |
+                {"message": "event deleted"}
+          401:
+            body:
+              application/json:
+                {"message": "Erro na operação"}
+          404:
+             body:
+               application/json: |
+                 {"message": "Client error"}
+
+    put:
       description: update event data
-      securedBy: [JWT]  
+      securedBy: JWT  
       body:
-        type: Event
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: Event
+            401:
+              body:
+                application/json: |
+                  {"message": "Erro na operação"}
+            404:
+              body:
+                application/json: |
+                  {"message": "Client error"}
 
 /groups:
   post:
     description: create group
-    securedBy: [JWT]  
+    securedBy: JWT  
     body:
-      type: Group
+      application/json:
+        properties:
+          name: string
+        example:
+          {"name": "string"}
+        responses:
+          201:
+            body:
+              application/json: Group[]
+          401:
+            body:
+              application/json:
+                {"message": "Erro na operação"}
+        
+  get: 
+    description: get groups data
+    securedBy: JWT  
     responses:
       200:
         body:
-          type: Operação realizada com sucesso
+          application/json: Group[]
       401:
         body:
-          type: Erro na operação
-      500:
-        body:
-          type: Erro no servidor
-  get: 
-    description: get groups data
-    securedBy: [JWT]  
+          application/json:
+            {"message": "Erro na operação"}
+
+  put:
+    description: update groups data
+    securedBy: JWT  
     body:
-      type: Group
+      application/json:
+        responses:
+          200:
+            body:
+              application/json: Group[]
+          401:
+           body:
+              application/json: |
+                {"message": "Erro na operação"}
+          404:
+           body:
+             application/json: |
+               {"message": "Client error"}
+
+  delete: 
+    description: delete groups
+    securedBy: JWT
     responses:
-    200:
-      body:
-        type: Operação realizada com sucesso
-    401:
-      body:
-        type: Erro na operação
-    500:
-      body:
-        type: Erro no servidor
+      200:
+        body:
+          application/json: |
+            {"message": "group deleted"}
+      401:
+       body:
+          application/json: |
+            {"message": "Erro na operação"}
+      404:
+           body:
+             application/json: |
+               {"message": "Client error"}
+
   /{id}:
+    post:
+      description: create group
+      securedBy: JWT  
+      body:
+        application/json:
+          properties:
+            name: string
+          example:
+            {"name": "string"}
+          responses:
+            201:
+              body:
+                application/json: Group
+            401:
+              body:
+                application/json:
+                  {"message": "Erro na operação"}
+
+    get:
+      description: get group data by id
+      securedBy: JWT  
+      responses:
+        200:
+          body:
+            application/json: Group
+        401:
+          body:
+            application/json:
+              {"message": "Erro na operação"}
+
     delete: 
       description: delete group by id
-      securedBy: [JWT]
+      securedBy: JWT
       responses:
         200:
           body:
-            type: Operação realizada com sucesso
+            application/json: |
+              {"message": "group deleted"}
         401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
-    put:
-      description: update group data
-      securedBy: [JWT]  
-      body:
-        type: Group
-      responses:
-        200:
-          body:
-            type: Operação realizada com sucesso
-        401:
-          body:
-            type: Erro na operação
-        500:
-          body:
-            type: Erro no servidor
+         body:
+            application/json: |
+              {"message": "Erro na operação"}
+        404:
+           body:
+             application/json: |
+               {"message": "Client error"}
 
+    put:
+      description: update group data by id
+      securedBy: JWT  
+      body:
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: Groups[]
+            401:
+             body:
+                application/json: |
+                  {"message": "Erro na operação"}
+            404:
+             body:
+               application/json: |
+                 {"message": "Client error"}
 
 /users:
   post:
     description: create user
-    securedBy: [JWT]  
+    securedBy: JWT  
     body:
-      type: User
-    responses:
-      200:
-        body:
-          type: Operação realizada com sucesso
-      401:
-        body:
-          type: Erro na operação
-      500:
-        body:
-          type: Erro no servidor
+      application/json:
+        properties:
+          name: string
+          email: string
+          password: string
+          last_login: datetime
+        example:
+          {"name": "string",
+           "email": "teste@teste.com",
+           "password": "string",
+           "last_login": "datetime"}
+        responses:
+          201:
+            body:
+              application/json: User[]  
+            401:
+              body:
+                application/json: |
+                  {"message": "Erro na operação"}
+
   get: 
     description: get users data
-    securedBy: [JWT]  
+    securedBy: JWT  
     body:
-      type: User
-    responses:
-      200:
-        body:
-          type: Operação realizada com sucesso
-      401:
-        body:
-          type: Erro na operação
-      500:
-        body:
-          type: Erro no servidor
+      application/json:
+        responses:
+          200:
+            body:
+              application/json: Users[]
+          401:
+            body:
+              type: Erro na operação
+  
   /{id}:
+    get: 
+      description: get user data by id
+      securedBy: JWT  
+      body:
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: User
+            401:
+              body:
+                type: Erro na operação
+
+    post:
+      description: create user
+      securedBy: JWT  
+      body:
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: User
+            401:
+              body:
+                application/json: |
+                  {"message": "Erro na operação"}
+
     delete: 
       description: delete user by id
-      body:
-        type: User
-      responses:
-      200:
-        body:
-          type: Operação realizada com sucesso
-      401:
-        body:
-          type: Erro na operação
-      500:
-        body:
-          type: Erro no servidor
-    put:
-      description: update user data
-      securedBy: [JWT]  
-      body:
-        type: User
+      securedBy: JWT  
       responses:
         200:
           body:
-            type: Operação realizada com sucesso
+            application/json: |
+              {"message": "User deleted"} 
         401:
           body:
-            type: Erro na operação
-        500:
+            application/json: |
+              {"message": "Operation error"}
+        404:
           body:
-            type: Erro no servidor
+            application/json: |
+              {"message": "Client error"}
+  
+    put:
+      description: update user data by id
+      securedBy: JWT  
+      body:
+        application/json:
+          responses:
+            200:
+              body:
+                application/json: User
+            401:
+              body:
+                application/json: |
+                  {"message": "Operation error"}
+            404:
+             body:
+               application/json: |
+                 {"message": "Client error"}
 
 """
