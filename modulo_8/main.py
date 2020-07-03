@@ -118,6 +118,11 @@ types:
           application/json:
             {"error": "Invalid data format or user not found"}
 
+      404:
+        body:
+          application/json: |
+            {"message": "Client error"}
+
 /agents: 
   post:
     description:  create an agent
@@ -136,15 +141,12 @@ types:
           201:
             body:
               application/json: |
-                {"message": agent created"}
+                example:
+                  {"agent_id": }
           401:
             body:
               application/json:
                 {"error": "Erro na operação"}
-          404:
-            body:
-              application/json: |
-                {"message": "Client error"}
 
   get:
     description: get agents data
@@ -153,11 +155,6 @@ types:
       200:
         body:
           application/json: Agent[]
-      401:
-        body:
-          application/json: |
-            {"message": "Erro na operação"}
-
 
   /{id}:
     get:
@@ -171,6 +168,10 @@ types:
           body:
             application/json: |
               {"message": "Erro na operação"}
+        404:
+          body:
+            application/json: |
+              {"message": "Client error"}
 
     delete:
       description: delete agent data
@@ -179,8 +180,7 @@ types:
         responses:
           200:
             body:
-              application/json: 
-                {"message": "Agent deleted"}
+              application/json: Agent
           401:
             body:
               application/json: |
@@ -189,6 +189,7 @@ types:
             body:
               application/json: |
                 {"message": "Client error"}
+
     put:
       description: update agent data
       securedBy: JWT
@@ -213,136 +214,143 @@ types:
       securedBy: JWT
       body:
         application/json: Event[]
-      responses:
-        201:
-          body:
-            application/json: |
-              {"message": "event created"}
-        401:
-          body:
-            application/json: |
-              {"message": "Erro na operação"}
-        404:
-          body:
-            application/json: |
-              {"message": "Client error"}
+        responses:
+          201:
+            body:
+              application/json: |
+                {"message": "event created"}
+          401:
+            body:
+              application/json: |
+                {"message": "Erro na operação"}
+          404:
+            body:
+              application/json: |
+                {"message": "Client error"}
 
     get: 
-      description: get events data
+      description: get event data by id
       securedBy: JWT
       responses:
         200:
           body:
-            application/json: Event
+            application/json: Event[]
         401:
           body:
             application/json: |
-              {"message": "Erro na operação"}
-         404:
-            body:
-              application/json: |
-                {"message": "Client error"}
+              {"message": "Operation error"}
+        404:
+          body:
+            application/json: |
+              {"message": "Client error"}
       
     delete: 
       description: delete event data
       securedBy: JWT
       body:
-        application/json:
-          responses:
-            200:
-              body:
-                application/json: |
-                  {"message": "Event deleted"}
-            401:
-              body:
-                application/json: |
-                  {"message": "Erro na operação"}
-
-    put:
-      description: update event data
-      securedBy: JWT
-      body:
-        application/json:
-          responses:
-            200:
-               body:
-                 application/json: |
-                    {"message": "data successfully updated"}
-            401:
-              body:
-                application/json: |
-                  {"message": "Operation error"}
-            404:
-             body:
-               application/json: |
-                 {"message": "Client error"}
-
-  /{id}/events/{id}:
-    post:
-      description: create event
-      securedBy: JWT  
-      body:
-        application/json:
-          responses:
-          200:
-            body:
-              application/json: |
-                example:
-                  {"new_data": "data"}
-          401:
-            body:
-              application/json: |
-                {"message": "Erro na operação"}
-  
-    get:
-      description: get event by id
-      securedBy: JWT
-      responses: 
+        application/json: Event[]
         200:
           body:
             application/json: |
-              {"event_ids": "data"}
+              {"message": "Event deleted"}
         401:
           body:
-            application/json:
-              {"message": "Erro na operação"}
-
-    delete: 
-      description: delete event
-      securedBy: JWT
-      body:  
-        responses:
-          200:
-            body:
-              application/json: |
-                {"message": "event deleted"}
-          401:
-            body:
-              application/json:
-                {"message": "Erro na operação"}
-          404:
-             body:
-               application/json: |
-                 {"message": "Client error"}
+            application/json: |
+              {"message": "Operation error"}
+        404:
+          body:
+            application/json: |
+              {"message": "Client error"}
 
     put:
       description: update event data
-      securedBy: JWT  
+      securedBy: JWT
       body:
-        application/json:
-          responses:
+        application/json: Event[]
+        200:
+           body:
+             application/json: |
+              {"message": "update events"}
+        401:
+          body:
+            application/json: |
+              {"message": "Operation error"}
+        404:
+         body:
+           application/json: |
+             {"message": "Client error"}
+
+    /{id}:
+        post:
+          description: create event
+          securedBy: JWT  
+          body:
+            application/json:
+              responses:
+              200:
+                body:
+                  application/json: Event
+              401:
+                body:
+                  application/json: |
+                    {"message": "Erro na operação"}
+              404:
+                body:
+                  application/json: |
+                    {"message": "Client error"}
+      
+        get:
+          description: get event by id
+          securedBy: JWT
+          responses: 
             200:
               body:
                 application/json: Event
             401:
               body:
-                application/json: |
+                application/json:
                   {"message": "Erro na operação"}
             404:
-              body:
-                application/json: |
-                  {"message": "Client error"}
-
+               body:
+                 application/json: |
+                   {"message": "Client error"}
+    
+        delete: 
+          description: delete event
+          securedBy: JWT
+          body:  
+            responses:
+              200:
+                body:
+                  application/json: |
+                    {"message": "event deleted"}
+              401:
+                body:
+                  application/json:
+                    {"message": "Erro na operação"}
+              404:
+                 body:
+                   application/json: |
+                     {"message": "Client error"}
+    
+        put:
+          description: update event data
+          securedBy: JWT  
+          body:
+            application/json:
+              responses:
+                200:
+                  body:
+                    application/json: Event
+                401:
+                  body:
+                    application/json: |
+                      {"message": "Erro na operação"}
+                404:
+                  body:
+                    application/json: |
+                      {"message": "Client error"}
+    
 /groups:
   post:
     description: create group
@@ -439,6 +447,10 @@ types:
           body:
             application/json:
               {"message": "Erro na operação"}
+        404:
+          body:
+            application/json: |
+              {"message": "Client error"}
 
     delete: 
       description: delete group by id
